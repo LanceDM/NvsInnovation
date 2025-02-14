@@ -10,10 +10,10 @@ class SkeletalMapping:
     
     def map_skeletons(self, frame):
         """Map skeletons on the given frame using BlazePose."""
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.pose.process(rgb_frame)
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert frame to RGB
+        results = self.pose.process(rgb_frame)  # Process frame with BlazePose
         
         if results.pose_landmarks:
-            self.mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)
+            self.mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)  # Draw skeleton landmarks
         
-        return results.pose_landmarks  # Return skeleton landmarks if detected
+        return results.pose_landmarks  # Return landmarks if detected

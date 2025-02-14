@@ -1,9 +1,10 @@
 import torch
 
 class ObjectDetection:
-    def __init__(self, model_path="yolov5s.pt"):
+    def __init__(self, model_path="yolov5s.pt", device="cpu"):
         """Load YOLOv5 model for object detection."""
-        self.model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path)
+        self.device = device
+        self.model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path, device=self.device)
 
     def detect_objects(self, frame):
         """Detect objects in the given frame."""
