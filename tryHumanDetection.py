@@ -1,6 +1,5 @@
 import cv2
 import torch
-import ultralytics
 
 # Check if CUDA (GPU) is available and set device accordingly
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
