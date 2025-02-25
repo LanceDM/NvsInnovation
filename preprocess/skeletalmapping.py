@@ -16,4 +16,4 @@ class SkeletalMapping:
         if results.pose_landmarks:
             self.mp_drawing.draw_landmarks(frame, results.pose_landmarks, self.mp_pose.POSE_CONNECTIONS)  # Draw skeleton landmarks
         
-        return results.pose_landmarks  # Return landmarks if detected
+        return results.pose_landmarks  

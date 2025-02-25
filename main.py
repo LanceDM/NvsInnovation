@@ -1,13 +1,17 @@
 import cv2
-from camera import Camera  # Assuming Camera module is imported
-from preprocess import Preprocess
 import torch
+from camera import Camera  
+from preprocess import Preprocess
+
+
 # Initialize camera
 camera = Camera()
 camera.open()
 
-# Initialize preprocess
+# Initialize device
 device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU if available
+
+# Initialize preprocess
 preprocess = Preprocess(device=device)
 
 while True:
@@ -15,7 +19,7 @@ while True:
     frame = camera.get_frame()
     
     if frame is not None:
-        # Process the frame (object detection + skeletal mapping)
+        # Process the frame 
         processed_frame = preprocess.preprocess_frame(frame)
         cv2.imshow("Processed Image", processed_frame)
     
