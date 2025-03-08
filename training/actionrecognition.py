@@ -10,7 +10,7 @@ class GraphConv(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=(1, 1))
 
     def forward(self, x):
-        x = torch.einsum('nctv,vw->nctw', (x, self.A))  # Spatio-temporal convolution
+        x = torch.einsum('nctv,vw->nctw', (x, self.A))  # Graph convolution
         x = self.conv(x)
         return x
 
@@ -27,5 +27,7 @@ class STGCN_ActionRecognition(nn.Module):
         x = F.relu(self.graph_conv1(x))
         x = F.relu(self.graph_conv2(x))
         x = F.relu(self.graph_conv3(x))
-        x = x.mean(dim=[2, 3])  # Global average pooling
-        return x  # Return raw logits (apply softmax outside)
+        x = x.mean(dim=2)  # Pool only over time (T), keep joints (V)
+        x = x.view(x.size(0), -1)  # Flatten for fully connected layer
+        x = self.fc(x)
+        return x  # Keep raw logits (apply softmax outside)
