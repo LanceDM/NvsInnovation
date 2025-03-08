@@ -1,40 +1,70 @@
 import cv2
-from preprocess.objectdetection import ObjectDetection
-from preprocess.skeletalmapping import SkeletalMapping
-
+import numpy as np
+from objectdetection import ObjectDetection
+from skeletalmapping import SkeletalMapping
+from tracking import Tracking  # Import the tracking module
 
 class Preprocess:
-  def __init__(self, device="cpu"):
-    """Initialize both object detection and skeletal mapping."""
-    self.device = device
-    self.object_detector = ObjectDetection(device=self.device)
-    self.skeletal_mapper = SkeletalMapping()
+    def __init__(self, device="cpu"):
+        """Initialize object detection, skeletal mapping, and tracking."""
+        self.device = device
+        self.object_detector = ObjectDetection(device=self.device)
+        self.skeletal_mapper = SkeletalMapping()
+        self.tracker = Tracking()  # Initialize SORT tracker
 
-  def preprocess_frame(self, frame):
-    """Preprocess a frame by detecting objects and mapping skeletons on detected humans."""
-    # Detect human objects (class 0 in YOLOv5)
-    bbox, labels, results = self.object_detector.detect_objects(frame)
+    def preprocess_frame(self, frame):
+        """Preprocess a frame by detecting objects, tracking them, and mapping skeletons."""
+        bbox, confs, results = self.object_detector.detect_objects(frame)
+        
+        # Format detections for SORT (x1, y1, x2, y2, conf)
+        detections = [list(bbox[i]) + [confs[i]] for i in range(len(bbox))]
+        
+        # Update tracker with new detections
+        tracked_objects = self.tracker.update_tracks(detections)
+        
+        skeleton_data = []
+        tracked_ids = []
 
-    for det in bbox:
-        # Get bounding box coordinates
-        x_center, y_center, width, height = det[:4]
-        x1, y1 = int(x_center - width / 2), int(y_center - height / 2) 
-        x2, y2 = int(x_center + width / 2), int(y_center + height / 2) 
+        for obj in tracked_objects:
+            x1, y1, x2, y2, track_id = map(int, obj)  # Get bounding box and ID
+            tracked_ids.append(track_id)
+            
+            # Apply BlazePose to each tracked person with reduced keypoints
+            skeletons = self.skeletal_mapper.map_skeletons(frame, [(x1, y1, x2, y2)])
+            
+            for skeleton in skeletons:
+                skeleton_data.append((track_id, skeleton))  # Store ID with skeleton
 
-        # Crop the detected human region from the frame
-        cropped_frame = frame[y1:y2, x1:x2]
+        # Ensure fixed number of people per frame (for ST-GCN)
+        max_people = 5
+        max_keypoints = 17  # Reduced keypoints for COCO compatibility
+        processed_skeleton_data = np.zeros((max_people, max_keypoints, 2))  # Default to 0 (no detection)
+        processed_ids = np.zeros((max_people,), dtype=int)  # Default IDs to 0
 
-        # Apply skeletal mapping to the cropped frame
-        skeleton_landmarks = self.skeletal_mapper.map_skeletons(cropped_frame)
+        for i, (track_id, skeleton) in enumerate(skeleton_data[:max_people]):  
+            processed_skeleton_data[i, :len(skeleton), :] = skeleton  # Assign skeleton data
+            processed_ids[i] = track_id  # Store tracking ID
 
-        # If skeleton landmarks are detected, map them back to the original frame
-        if skeleton_landmarks:
-            for landmark in skeleton_landmarks.landmark:  
-                # Adjust coordinates to map skeletal points back to the original frame
-                x, y = int(landmark.x * width + x1), int(landmark.y * height + y1)
-                # Draw skeletal points on the original frame
-                cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
-                
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  
+        # Draw bounding boxes and skeletons on the frame
+        self.draw_bounding_boxes(frame, tracked_objects)
+        self.draw_skeletons(frame, skeleton_data)
 
-    return frame
+        return frame, processed_skeleton_data, processed_ids
+
+    def draw_bounding_boxes(self, frame, tracked_objects):
+        """Draw bounding boxes with tracking IDs on the frame."""
+        for obj in tracked_objects:
+            x1, y1, x2, y2, track_id = map(int, obj)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Blue box
+            cv2.putText(frame, f"ID: {track_id}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+
+    def draw_skeletons(self, frame, skeleton_data):
+        """Draw skeletons on the frame."""
+        for track_id, skeleton in skeleton_data:
+            for (x, y) in skeleton:
+                cv2.circle(frame, (int(x), int(y)), 3, (0, 255, 0), -1)  # Green keypoints
+
+    def save_to_npz(self, file_path, video_name, skeleton_data, tracked_ids):
+        """Save skeleton data and tracked IDs to an NPZ file for ST-GCN training."""
+        np.savez(file_path, data=skeleton_data, ids=tracked_ids, video_name=video_name)
+        print(f"Saved NPZ file: {file_path}")

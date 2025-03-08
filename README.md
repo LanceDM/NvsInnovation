@@ -13,3 +13,7 @@ Requirements:
 pytorch
 cuda if you have GPU
 opencv
+
+Needs pa:
+batching
+framerate limit

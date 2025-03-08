@@ -1,32 +1,20 @@
+from preprocess.preprocess import Preprocess
 import cv2
-import torch
-from camera import Camera  
-from preprocess import Preprocess
 
+preprocessor = Preprocess(device="cpu")
+cap = cv2.VideoCapture(0)  # Use webcam
 
-# Initialize camera
-camera = Camera()
-camera.open()
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
 
-# Initialize device
-device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU if available
+    frame, skeletons, ids = preprocessor.preprocess_frame(frame)
 
-# Initialize preprocess
-preprocess = Preprocess(device=device)
-
-while True:
-    # Get a frame from the camera
-    frame = camera.get_frame()
-    
-    if frame is not None:
-        # Process the frame 
-        processed_frame = preprocess.preprocess_frame(frame)
-        cv2.imshow("Processed Image", processed_frame)
-    
-    # Exit with 'q'
+    # Display the frame
+    cv2.imshow("Live Detection", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release camera resources
-camera.release()
+cap.release()
 cv2.destroyAllWindows()
