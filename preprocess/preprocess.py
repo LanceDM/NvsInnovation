@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from objectdetection import ObjectDetection
 from skeletalmapping import SkeletalMapping
-from tracking import Tracking  # Import the tracking module
+from tracking import Tracking  
 
 class Preprocess:
     def __init__(self, device="cpu"):
@@ -10,7 +10,7 @@ class Preprocess:
         self.device = device
         self.object_detector = ObjectDetection(device=self.device)
         self.skeletal_mapper = SkeletalMapping()
-        self.tracker = Tracking()  # Initialize SORT tracker
+        self.tracker = Tracking()  
 
     def preprocess_frame(self, frame):
         """Preprocess a frame by detecting objects, tracking them, and mapping skeletons."""
@@ -29,7 +29,7 @@ class Preprocess:
             x1, y1, x2, y2, track_id = map(int, obj)  # Get bounding box and ID
             tracked_ids.append(track_id)
             
-            # Apply BlazePose to each tracked person with reduced keypoints
+            # Apply BlazePose 
             skeletons = self.skeletal_mapper.map_skeletons(frame, [(x1, y1, x2, y2)])
             
             for skeleton in skeletons:

@@ -30,4 +30,4 @@ class STGCN_Temporal(nn.Module):
         x = x.mean(dim=2)  # Pool over time only
         x = x.view(x.size(0), -1)  # Flatten
         x = self.fc(x)
-        return x  # Raw logits (softmax outside)
+        return x 

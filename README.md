@@ -10,10 +10,9 @@ yolov5 - built in multiple-object detection, fast and lightweight
 blazepipe - faster than mediapipe for skeletal mapping, better optimized and offers reduced latency 
 
 Requirements:
-pytorch
-cuda if you have GPU
-opencv
+  python 3.8 - 3.11
+  cuda if you have GPU
+  opencv
 
-Needs pa:
-batching
-framerate limit
+run in terminal to install requirements:
+  pip install -r requirements.txt

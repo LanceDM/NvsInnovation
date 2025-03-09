@@ -92,7 +92,7 @@ for epoch in range(num_epochs):
         val_accuracy = correct / total * 100
         print(f"Epoch {epoch+1} - {model_name} Validation Loss: {avg_val_loss:.4f}, Accuracy: {val_accuracy:.2f}%")
 
-print("✅ Training Complete!")
+print("Training Complete!")
 
 # Testing
 test_sample = torch.rand(1, 3, 50, 17)

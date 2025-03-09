@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
-from preprocess.preprocess import Preprocess
+import sys
+import os
+
+# Add the preprocess folder to Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../preprocess")))
+
+from preprocess import Preprocess
 
 # Initialize Preprocessor
 preprocessor = Preprocess(device="cpu")
@@ -30,5 +36,5 @@ while cap.isOpened():
 cap.release()
 
 # Convert to NumPy arrays & save NPZ
-np.savez("skeleton_data.npz", data=np.array(skeleton_data), ids=np.array(tracked_ids))
+np.savez("npzdata/skeleton_data.npz", data=np.array(skeleton_data), ids=np.array(tracked_ids))
 print("✅ NPZ File Saved for ST-GCN Training!")

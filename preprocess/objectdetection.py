@@ -2,7 +2,7 @@ import torch
 from ultralytics import YOLO
 
 class ObjectDetection:
-    def __init__(self, model_name="yolov8n", device="cpu"):   # either yolov8n or yolov5s
+    def __init__(self, model_name="yolov5s", device="cpu"):   # either yolov8n or yolov5s
         """Load YOLOv5 or YOLOv8 model dynamically."""
         self.device = device
         self.model_name = model_name
@@ -13,7 +13,7 @@ class ObjectDetection:
         if "yolov5" in model_name:  # Load YOLOv5
             return torch.hub.load("ultralytics/yolov5", model_name, pretrained=True, device=self.device)
         else:  
-            return YOLO(model_name)  # Example: "yolov8n.pt"
+            return YOLO(model_name)  # yolov8n.pt
 
     def set_model(self, new_model_name):
         """Dynamically change the YOLO model."""

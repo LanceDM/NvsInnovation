@@ -30,4 +30,4 @@ class STGCN_ActionRecognition(nn.Module):
         x = x.mean(dim=2)  # Pool only over time (T), keep joints (V)
         x = x.view(x.size(0), -1)  # Flatten for fully connected layer
         x = self.fc(x)
-        return x  # Keep raw logits (apply softmax outside)
+        return x  

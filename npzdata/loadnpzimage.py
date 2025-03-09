@@ -1,13 +1,12 @@
 import numpy as np
 import cv2
-
 import sys
 import os
 
 # Add the preprocess folder to Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "preprocess")))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../preprocess")))
 
-from preprocess.preprocess import Preprocess
+from preprocess import Preprocess
 
 # Initialize Preprocessor
 preprocessor = Preprocess(device="cpu")
@@ -20,5 +19,5 @@ frame = cv2.imread(image_path)
 _, skeletons, tracked_ids = preprocessor.preprocess_frame(frame)
 
 # Convert to NumPy arrays & save NPZ
-np.savez("image_skeleton_data.npz", data=np.array([skeletons]), ids=np.array([tracked_ids]))
+np.savez("npzdata/image_skeleton_data.npz", data=np.array([skeletons]), ids=np.array([tracked_ids]))
 print("✅ NPZ File Saved for Image Processing!")
