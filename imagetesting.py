@@ -8,7 +8,6 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "preprocess")))
 
 from preprocess.preprocess import Preprocess
-from preprocess.preprocess import Preprocess
 
 # Initialize Preprocess class
 preprocessor = Preprocess(device="cpu")
